@@ -5,7 +5,7 @@ export * from "./messages";
  */
 export const EXTENSION_CONSTANTS = {
 	VIEW_TYPE: "ollamaExplainer",
-	COMMAND_ID: "ollama-code-explainer.explainCode",
+	COMMAND_ID: "ollamaExplainer.explainCode",
 } as const;
 
 /**

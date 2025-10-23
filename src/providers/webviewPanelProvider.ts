@@ -1,11 +1,10 @@
-import * as vscode from "vscode";
+import type * as vscode from "vscode";
 import { OllamaService } from "../ollamaService";
 import { ModelService } from "../services/models/modelService";
 import { CodeAnalysisService } from "../services/codeAnalysis/codeAnalysisService";
 import { WebviewMessageHandler } from "./webviewMessageHandler";
 import { getWebviewContent } from "../ui/webview/content";
-import { EXTENSION_CONSTANTS, AnalysisMode } from "../constants";
-import type { WebviewToExtensionMessage } from "../models";
+import { EXTENSION_CONSTANTS, AnalysisMode, WebviewMessageType } from "../constants";
 
 /**
  * Provider for the Ollama Code Explainer webview
@@ -14,7 +13,6 @@ import type { WebviewToExtensionMessage } from "../models";
 export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = EXTENSION_CONSTANTS.VIEW_TYPE;
 
-	private _view?: vscode.WebviewView;
 	private ollamaService: OllamaService;
 	private modelService: ModelService;
 	private codeAnalysisService: CodeAnalysisService;
@@ -28,11 +26,9 @@ export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
+		_context: vscode.WebviewViewResolveContext,
 		_token: vscode.CancellationToken,
 	): void {
-		this._view = webviewView;
-
 		webviewView.webview.options = {
 			enableScripts: true,
 			localResourceRoots: [this._extensionUri],
@@ -52,7 +48,7 @@ export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 
 		// Handle messages from the webview
 		webviewView.webview.onDidReceiveMessage(
-			async (data: WebviewToExtensionMessage) => {
+			async (data) => {
 				if (this.messageHandler) {
 					await this.messageHandler.handleMessage(data);
 				}
@@ -62,7 +58,7 @@ export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 		// Load models when the view is created
 		if (this.messageHandler) {
 			this.messageHandler.handleMessage({
-				type: "loadModels" as any,
+				type: WebviewMessageType.LOAD_MODELS,
 			});
 		}
 	}
@@ -75,7 +71,7 @@ export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 	): Promise<void> {
 		if (this.messageHandler) {
 			await this.messageHandler.handleMessage({
-				type: "explainCode" as any,
+				type: WebviewMessageType.EXPLAIN_CODE,
 				mode,
 			});
 		}

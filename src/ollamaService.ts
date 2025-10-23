@@ -17,34 +17,6 @@ export class OllamaService {
 		}
 	}
 
-	async explainCode(
-		code: string,
-		language: string,
-		model: string,
-	): Promise<string> {
-		try {
-			const prompt = `Explain the following ${language} code in detail:\n\n${code}`;
-
-			let fullResponse = "";
-			const stream = await this.ollama.generate({
-				model: model,
-				prompt: prompt,
-				stream: true,
-			});
-
-			for await (const chunk of stream) {
-				if (chunk.response) {
-					fullResponse += chunk.response;
-				}
-			}
-
-			return fullResponse;
-		} catch (error) {
-			console.error("Failed to explain code with Ollama:", error);
-			throw error;
-		}
-	}
-
 	async explainCodeStream(
 		code: string,
 		language: string,
