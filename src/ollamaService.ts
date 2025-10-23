@@ -49,10 +49,27 @@ export class OllamaService {
 		code: string,
 		language: string,
 		model: string,
+		mode: string,
 		onChunk: (chunk: string) => void,
 	): Promise<void> {
 		try {
-			const prompt = `Explain the following ${language} code in detail:\n\n${code}`;
+			let prompt: string;
+
+			if (mode === "enhance") {
+				prompt = `Analyze the following ${language} code and suggest improvements, enhancements, and potential fixes. Focus on:
+- Code quality and best practices
+- Performance optimizations
+- Potential bugs or edge cases
+- Security concerns
+- Readability improvements
+
+Do NOT write the actual code. Only describe what could be improved and why.
+
+Code:
+${code}`;
+			} else {
+				prompt = `Explain the following ${language} code in detail:\n\n${code}`;
+			}
 
 			const stream = await this.ollama.generate({
 				model: model,

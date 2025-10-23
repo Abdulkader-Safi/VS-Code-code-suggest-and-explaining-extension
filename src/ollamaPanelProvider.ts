@@ -35,7 +35,7 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
 					this.currentModel = data.model;
 					break;
 				case "explainCode":
-					await this.explainSelectedCode();
+					await this.explainSelectedCode(data.mode || "explain");
 					break;
 			}
 		});
@@ -65,7 +65,7 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
-	public async explainSelectedCode() {
+	public async explainSelectedCode(mode = "explain") {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			vscode.window.showInformationMessage(
@@ -115,6 +115,7 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
 				text,
 				languageId,
 				this.currentModel,
+				mode,
 				(chunk) => {
 					if (this._view) {
 						this._view.webview.postMessage({
@@ -149,6 +150,9 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama Code Explainer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
     <style>
         body {
             padding: 10px;
@@ -272,6 +276,111 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
             padding: 4px 8px;
             font-size: 12px;
         }
+
+        .mode-selector {
+            margin-bottom: 10px;
+        }
+
+        .mode-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .mode-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mode-option input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .mode-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .collapsible {
+            margin: 10px 0;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--vscode-editor-background);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+
+        .collapsible-title {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        .collapsible-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            padding: 10px;
+            background: var(--vscode-editor-background);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .collapsible-content.collapsed {
+            display: none;
+        }
+
+        .reset-button {
+            margin-top: 10px;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+        }
+
+        .reset-button:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        pre code {
+            display: block;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        .hljs {
+            background: var(--vscode-textCodeBlock-background) !important;
+        }
     </style>
 </head>
 <body>
@@ -284,8 +393,22 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
             <button class="refresh-button" id="refreshModels">Refresh Models</button>
         </div>
 
+        <div class="section mode-selector">
+            <label>Analysis Mode</label>
+            <div class="mode-options">
+                <div class="mode-option">
+                    <input type="radio" id="modeExplain" name="mode" value="explain" checked>
+                    <label for="modeExplain">Explain Code</label>
+                </div>
+                <div class="mode-option">
+                    <input type="radio" id="modeEnhance" name="mode" value="enhance">
+                    <label for="modeEnhance">Suggest Enhancements</label>
+                </div>
+            </div>
+        </div>
+
         <div class="section">
-            <button id="explainButton">Explain Selected Code</button>
+            <button id="explainButton">Analyze Selected Code</button>
         </div>
 
         <div id="content"></div>
@@ -297,9 +420,11 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
         const explainButton = document.getElementById('explainButton');
         const refreshModels = document.getElementById('refreshModels');
         const content = document.getElementById('content');
+        const modeRadios = document.querySelectorAll('input[name="mode"]');
 
         let isLoading = false;
         let currentExplanation = '';
+        let currentMode = 'explain';
 
         // Request models on load
         vscode.postMessage({ type: 'loadModels' });
@@ -311,8 +436,17 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
             });
         });
 
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentMode = e.target.value;
+            });
+        });
+
         explainButton.addEventListener('click', () => {
-            vscode.postMessage({ type: 'explainCode' });
+            vscode.postMessage({
+                type: 'explainCode',
+                mode: currentMode
+            });
         });
 
         refreshModels.addEventListener('click', () => {
@@ -351,16 +485,29 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
 
                 case 'codeContext':
                     content.innerHTML = \`
-                        <div class="language-label">Language: \${message.language}</div>
-                        <div class="code-context">\${escapeHtml(message.code)}</div>
+                        <div class="collapsible">
+                            <div class="collapsible-header" onclick="toggleCollapsible('code-section')">
+                                <div class="collapsible-title">
+                                    <span class="collapsible-icon" id="code-section-icon">▼</span>
+                                    <span>Selected Code (\${message.language})</span>
+                                </div>
+                            </div>
+                            <div class="collapsible-content" id="code-section-content">
+                                <pre><code class="language-\${message.language}">\${escapeHtml(message.code)}</code></pre>
+                            </div>
+                        </div>
                     \`;
+                    // Apply syntax highlighting
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
                     break;
 
                 case 'explanationStarted':
                     isLoading = true;
                     explainButton.disabled = true;
                     currentExplanation = '';
-                    content.innerHTML += '<div class="loading"><div class="spinner"></div><span>Generating explanation...</span></div>';
+                    content.innerHTML += '<div class="loading"><div class="spinner"></div><span>Analyzing code...</span></div>';
                     break;
 
                 case 'explanationChunk':
@@ -372,6 +519,7 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
                     isLoading = false;
                     explainButton.disabled = false;
                     updateExplanation();
+                    addResetButton();
                     break;
 
                 case 'explanationError':
@@ -388,15 +536,106 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
                 loadingDiv.remove();
             }
 
-            const existingExplanation = document.querySelector('.explanation');
-            if (existingExplanation) {
-                existingExplanation.textContent = currentExplanation;
-            } else {
-                const explanationDiv = document.createElement('div');
-                explanationDiv.className = 'explanation';
-                explanationDiv.textContent = currentExplanation;
-                content.appendChild(explanationDiv);
+            let existingCollapsible = document.getElementById('explanation-collapsible');
+
+            if (!existingCollapsible && currentExplanation) {
+                existingCollapsible = document.createElement('div');
+                existingCollapsible.id = 'explanation-collapsible';
+                existingCollapsible.className = 'collapsible';
+                existingCollapsible.innerHTML = \`
+                    <div class="collapsible-header" onclick="toggleCollapsible('explanation-section')">
+                        <div class="collapsible-title">
+                            <span class="collapsible-icon" id="explanation-section-icon">▼</span>
+                            <span>Analysis Result</span>
+                        </div>
+                    </div>
+                    <div class="collapsible-content" id="explanation-section-content">
+                        <div class="explanation" id="explanation-text"></div>
+                    </div>
+                \`;
+                content.appendChild(existingCollapsible);
             }
+
+            const explanationText = document.getElementById('explanation-text');
+            if (explanationText) {
+                // Parse markdown and highlight code blocks
+                const htmlContent = parseMarkdownWithCodeHighlight(currentExplanation);
+                explanationText.innerHTML = htmlContent;
+
+                // Apply syntax highlighting to code blocks
+                explanationText.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        }
+
+        function parseMarkdownWithCodeHighlight(text) {
+            // Simple markdown parser for code blocks
+            const lines = text.split('\\n');
+            let html = '';
+            let inCodeBlock = false;
+            let codeLanguage = '';
+            let codeContent = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                if (line.startsWith('\`\`\`')) {
+                    if (!inCodeBlock) {
+                        // Start of code block
+                        inCodeBlock = true;
+                        codeLanguage = line.substring(3).trim() || 'plaintext';
+                        codeContent = '';
+                    } else {
+                        // End of code block
+                        inCodeBlock = false;
+                        html += \`<pre><code class="language-\${codeLanguage}">\${escapeHtml(codeContent)}</code></pre>\`;
+                        codeLanguage = '';
+                        codeContent = '';
+                    }
+                } else if (inCodeBlock) {
+                    codeContent += line + '\\n';
+                } else {
+                    // Regular text - escape HTML and preserve line breaks
+                    html += escapeHtml(line) + '<br>';
+                }
+            }
+
+            // Handle unclosed code block
+            if (inCodeBlock) {
+                html += \`<pre><code class="language-\${codeLanguage}">\${escapeHtml(codeContent)}</code></pre>\`;
+            }
+
+            return html;
+        }
+
+        function toggleCollapsible(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+
+            if (content && icon) {
+                content.classList.toggle('collapsed');
+                icon.classList.toggle('collapsed');
+            }
+        }
+
+        function addResetButton() {
+            // Remove existing reset button if any
+            const existingReset = document.getElementById('reset-button');
+            if (existingReset) {
+                existingReset.remove();
+            }
+
+            const resetButton = document.createElement('button');
+            resetButton.id = 'reset-button';
+            resetButton.className = 'reset-button';
+            resetButton.textContent = 'Reset & Analyze New Code';
+            resetButton.onclick = () => {
+                content.innerHTML = '';
+                currentExplanation = '';
+                explainButton.disabled = false;
+            };
+            content.appendChild(resetButton);
         }
 
         function escapeHtml(text) {
