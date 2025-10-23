@@ -265,8 +265,8 @@ pre code {
 .explanation h2,
 .explanation h3,
 .explanation h4 {
-	margin-top: 1em;
-	margin-bottom: 0.5em;
+	margin-top: 0.5em;
+	margin-bottom: 0.3em;
 	font-weight: bold;
 }
 
@@ -286,16 +286,16 @@ pre code {
 
 .explanation ul,
 .explanation ol {
-	margin: 0.5em 0;
+	margin: 0.3em 0;
 	padding-left: 2em;
 }
 
 .explanation li {
-	margin: 0.3em 0;
+	margin: 0.15em 0;
 }
 
 .explanation p {
-	margin: 0.5em 0;
+	margin: 0.3em 0;
 	line-height: 1.6;
 }
 
@@ -317,7 +317,7 @@ pre code {
 }
 
 .explanation pre {
-	margin: 1em 0;
+	margin: 0.5em 0;
 }
 
 .explanation pre code {
@@ -328,7 +328,7 @@ pre code {
 
 .explanation blockquote {
 	border-left: 3px solid var(--vscode-activityBarBadge-background);
-	margin: 1em 0;
+	margin: 0.5em 0;
 	padding-left: 1em;
 	color: var(--vscode-descriptionForeground);
 }
@@ -336,12 +336,12 @@ pre code {
 .explanation hr {
 	border: none;
 	border-top: 1px solid var(--vscode-panel-border);
-	margin: 1.5em 0;
+	margin: 0.75em 0;
 }
 
 .explanation table {
 	border-collapse: collapse;
-	margin: 1em 0;
+	margin: 0.5em 0;
 	width: 100%;
 }
 
