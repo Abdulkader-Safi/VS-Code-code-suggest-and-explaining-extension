@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline' https://cdnjs.cloudflare.com; script-src {{cspSource}} 'unsafe-inline' https://cdnjs.cloudflare.com;"
+    />
+    <title>Ollama Code Explainer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <link rel="stylesheet" href="{{stylesUri}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="section">
+        <label for="modelSelect">Ollama Model</label>
+        <select id="modelSelect">
+          <option value="">Loading models...</option>
+        </select>
+        <button class="refresh-button" id="refreshModels">
+          Refresh Models
+        </button>
+      </div>
+
+      <div class="section mode-selector">
+        <label style="margin-bottom: 8px">Analysis Mode</label>
+        <div class="mode-options">
+          <div class="mode-option">
+            <input
+              type="radio"
+              id="modeExplain"
+              name="mode"
+              value="explain"
+              checked
+            />
+            <label for="modeExplain">Explain Code</label>
+          </div>
+          <div class="mode-option">
+            <input type="radio" id="modeEnhance" name="mode" value="enhance" />
+            <label for="modeEnhance">Suggest Enhancements</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <button id="explainButton">Analyze Selected Code</button>
+      </div>
+
+      <div id="content"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+    <script src="{{scriptUri}}"></script>
+  </body>
+</html>

@@ -1,7 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { OllamaPanelProvider } from "./ollamaPanelProvider";
+import { WebviewPanelProvider } from "./providers/webviewPanelProvider";
+import { EXTENSION_CONSTANTS } from "./constants";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -11,18 +12,18 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log("Ollama Code Explainer extension is now active!");
 
 	// Register the webview panel provider
-	const provider = new OllamaPanelProvider(context.extensionUri);
+	const provider = new WebviewPanelProvider(context.extensionUri);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
-			OllamaPanelProvider.viewType,
+			WebviewPanelProvider.viewType,
 			provider,
 		),
 	);
 
 	// Register the command to explain code
 	const explainCodeCommand = vscode.commands.registerCommand(
-		"ollamaExplainer.explainCode",
+		EXTENSION_CONSTANTS.COMMAND_ID,
 		() => {
 			provider.explainSelectedCode();
 		},
