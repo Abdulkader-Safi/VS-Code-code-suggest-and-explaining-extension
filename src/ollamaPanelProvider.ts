@@ -343,8 +343,8 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
         .collapsible-content {
             padding: 10px;
             background: var(--vscode-editor-background);
-            max-height: 500px;
-            overflow-y: auto;
+            height: auto;
+            overflow-y: visible;
         }
 
         .collapsible-content.collapsed {
