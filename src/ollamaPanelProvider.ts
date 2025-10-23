@@ -283,24 +283,53 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
 
         .mode-options {
             display: flex;
-            gap: 15px;
+            gap: 8px;
             margin-top: 5px;
         }
 
         .mode-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            flex: 1;
+            position: relative;
         }
 
         .mode-option input[type="radio"] {
-            cursor: pointer;
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
         .mode-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
             margin: 0;
             font-weight: normal;
             cursor: pointer;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-button-border, transparent);
+            border-radius: 2px;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .mode-option label:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .mode-option input[type="radio"]:checked + label {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border-color: var(--vscode-focusBorder, var(--vscode-button-background));
+            font-weight: 500;
+        }
+
+        .mode-option input[type="radio"]:focus + label {
+            outline: 1px solid var(--vscode-focusBorder);
+            outline-offset: 2px;
         }
 
         .collapsible {
@@ -486,7 +515,7 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
         </div>
 
         <div class="section mode-selector">
-            <label>Analysis Mode</label>
+            <label style="margin-bottom: 8px;">Analysis Mode</label>
             <div class="mode-options">
                 <div class="mode-option">
                     <input type="radio" id="modeExplain" name="mode" value="explain" checked>
