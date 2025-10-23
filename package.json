@@ -3,6 +3,7 @@
   "displayName": "VS-Code-code-suggest-and-explaining-extension",
   "description": "",
   "version": "0.0.1",
+  "publisher": "AbdulkaderSafi",
   "author": {
     "name": "Safi",
     "email": "safi.abdulkader@gmail.com",
