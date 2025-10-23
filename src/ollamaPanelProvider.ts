@@ -381,6 +381,98 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
         .hljs {
             background: var(--vscode-textCodeBlock-background) !important;
         }
+
+        /* Markdown styling */
+        .explanation h1, .explanation h2, .explanation h3, .explanation h4 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+
+        .explanation h1 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--vscode-panel-border);
+            padding-bottom: 0.3em;
+        }
+
+        .explanation h2 {
+            font-size: 1.3em;
+        }
+
+        .explanation h3 {
+            font-size: 1.1em;
+        }
+
+        .explanation ul, .explanation ol {
+            margin: 0.5em 0;
+            padding-left: 2em;
+        }
+
+        .explanation li {
+            margin: 0.3em 0;
+        }
+
+        .explanation p {
+            margin: 0.5em 0;
+            line-height: 1.6;
+        }
+
+        .explanation strong {
+            font-weight: bold;
+            color: var(--vscode-editor-foreground);
+        }
+
+        .explanation em {
+            font-style: italic;
+        }
+
+        .explanation code {
+            background: var(--vscode-textCodeBlock-background);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: var(--vscode-editor-font-family);
+            font-size: 0.9em;
+        }
+
+        .explanation pre {
+            margin: 1em 0;
+        }
+
+        .explanation pre code {
+            display: block;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .explanation blockquote {
+            border-left: 3px solid var(--vscode-activityBarBadge-background);
+            margin: 1em 0;
+            padding-left: 1em;
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .explanation hr {
+            border: none;
+            border-top: 1px solid var(--vscode-panel-border);
+            margin: 1.5em 0;
+        }
+
+        .explanation table {
+            border-collapse: collapse;
+            margin: 1em 0;
+            width: 100%;
+        }
+
+        .explanation table th,
+        .explanation table td {
+            border: 1px solid var(--vscode-panel-border);
+            padding: 0.5em;
+        }
+
+        .explanation table th {
+            background: var(--vscode-editor-background);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -561,51 +653,28 @@ export class OllamaPanelProvider implements vscode.WebviewViewProvider {
                 // Parse markdown and highlight code blocks
                 const htmlContent = parseMarkdownWithCodeHighlight(currentExplanation);
                 explanationText.innerHTML = htmlContent;
-
-                // Apply syntax highlighting to code blocks
-                explanationText.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
             }
         }
 
         function parseMarkdownWithCodeHighlight(text) {
-            // Simple markdown parser for code blocks
-            const lines = text.split('\\n');
-            let html = '';
-            let inCodeBlock = false;
-            let codeLanguage = '';
-            let codeContent = '';
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-
-                if (line.startsWith('\`\`\`')) {
-                    if (!inCodeBlock) {
-                        // Start of code block
-                        inCodeBlock = true;
-                        codeLanguage = line.substring(3).trim() || 'plaintext';
-                        codeContent = '';
-                    } else {
-                        // End of code block
-                        inCodeBlock = false;
-                        html += \`<pre><code class="language-\${codeLanguage}">\${escapeHtml(codeContent)}</code></pre>\`;
-                        codeLanguage = '';
-                        codeContent = '';
+            // Configure marked.js for proper markdown rendering
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (err) {
+                            console.error('Highlight error:', err);
+                        }
                     }
-                } else if (inCodeBlock) {
-                    codeContent += line + '\\n';
-                } else {
-                    // Regular text - escape HTML and preserve line breaks
-                    html += escapeHtml(line) + '<br>';
+                    return hljs.highlightAuto(code).value;
                 }
-            }
+            });
 
-            // Handle unclosed code block
-            if (inCodeBlock) {
-                html += \`<pre><code class="language-\${codeLanguage}">\${escapeHtml(codeContent)}</code></pre>\`;
-            }
-
+            // Parse markdown to HTML
+            const html = marked.parse(text);
             return html;
         }
 
