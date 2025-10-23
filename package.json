@@ -3,6 +3,15 @@
   "displayName": "VS-Code-code-suggest-and-explaining-extension",
   "description": "",
   "version": "0.0.1",
+  "author": {
+    "name": "Safi",
+    "email": "safi.abdulkader@gmail.com",
+    "url": "https://abdulkadersafi.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Abdulkader-Safi/VS-Code-code-suggest-and-explaining-extension.git"
+  },
   "engines": {
     "vscode": "^1.105.0"
   },

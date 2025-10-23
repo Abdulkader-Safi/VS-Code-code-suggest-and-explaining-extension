@@ -189,10 +189,6 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 - Multi-model support
 - Interactive webview panel
 
-## License
-
-See LICENSE file for details.
-
 ## Support
 
 If you encounter any issues or have feature requests, please file an issue on the GitHub repository.
@@ -200,3 +196,5 @@ If you encounter any issues or have feature requests, please file an issue on th
 ---
 
 **Enjoy enhanced code understanding with AI-powered analysis!**
+
+[My Website](https://abdulkadersafi.com)
