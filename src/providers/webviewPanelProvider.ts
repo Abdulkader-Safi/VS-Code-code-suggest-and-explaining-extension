@@ -4,7 +4,12 @@ import { ModelService } from "../services/models/modelService";
 import { CodeAnalysisService } from "../services/codeAnalysis/codeAnalysisService";
 import { WebviewMessageHandler } from "./webviewMessageHandler";
 import { getWebviewContent } from "../ui/webview/content";
-import { EXTENSION_CONSTANTS, AnalysisMode, WebviewMessageType } from "../constants";
+import {
+	EXTENSION_CONSTANTS,
+	AnalysisMode,
+	WebviewMessageType,
+} from "../constants";
+import type { WebviewToExtensionMessage } from "../models";
 
 /**
  * Provider for the Ollama Code Explainer webview
@@ -48,14 +53,12 @@ export class WebviewPanelProvider implements vscode.WebviewViewProvider {
 
 		// Handle messages from the webview
 		webviewView.webview.onDidReceiveMessage(
-			async (data) => {
+			async (data: WebviewToExtensionMessage) => {
 				if (this.messageHandler) {
 					await this.messageHandler.handleMessage(data);
 				}
 			},
-		);
-
-		// Load models when the view is created
+		); // Load models when the view is created
 		if (this.messageHandler) {
 			this.messageHandler.handleMessage({
 				type: WebviewMessageType.LOAD_MODELS,
