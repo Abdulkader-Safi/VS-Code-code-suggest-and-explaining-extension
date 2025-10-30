@@ -2,7 +2,7 @@
   "name": "clarif-ai",
   "displayName": "ClarifAI",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "AbdulkaderSafi",
   "author": {
     "name": "Safi",
@@ -11,16 +11,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Abdulkader-Safi/VS-Code-code-suggest-and-explaining-extension.git"
+    "url": "https://github.com/Abdulkader-Safi/clarifai.git"
   },
   "engines": {
     "vscode": "^1.105.0"
   },
+  "keywords": [
+    "code explanation",
+    "ollama",
+    "ai",
+    "code assistant",
+    "llm",
+    "local ai",
+    "code analysis",
+    "developer tools"
+  ],
   "categories": [
-    "Other"
+    "Machine Learning",
+    "Programming Languages",
+    "Education"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
+  "icon": "./media/image.png",
   "contributes": {
     "commands": [
       {
@@ -54,7 +67,9 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
